@@ -1,8 +1,17 @@
+const std = @import("std");
 const raylib = @import("raylib");
+
+const Square = @import("shapes/Square.zig");
+const Shape = @import("shapes/Shape.zig");
 
 pub fn main() anyerror!void {
     const screenWidth = 800;
     const screenHeight = 450;
+
+    const allocator = std.heap.page_allocator;
+    const square = Square.init(100, 100);
+    const squareShape = try Shape.init(square, 100, 100, allocator);
+    defer squareShape.deinit();
 
     raylib.initWindow(screenWidth, screenHeight, "raylib-zig [core] example - basic window");
     defer raylib.closeWindow();
@@ -13,8 +22,8 @@ pub fn main() anyerror!void {
         raylib.beginDrawing();
         defer raylib.endDrawing();
 
-        raylib.clearBackground(raylib.Color.white);
+        raylib.clearBackground(raylib.Color.black);
 
-        raylib.drawText("Congrats! You created your first window!", 190, 200, 20, raylib.Color.light_gray);
+        squareShape.render();
     }
 }
