@@ -22,7 +22,7 @@ pub fn init(allocator: std.mem.Allocator, trigger_key: raylib.KeyboardKey, conte
     };
 }
 
-pub fn tick(self: *This) void {
+pub fn tick(self: *This) !void {
     if (raylib.isKeyDown(self.trigger_key)) {
         const mpos = raylib.getScreenToWorld2D(raylib.getMousePosition(), self.context.camera.*);
         if (self.square == null) {

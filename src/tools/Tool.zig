@@ -3,7 +3,7 @@ const raylib = @import("raylib");
 
 const This = @This();
 const ListenFn = fn (self: *anyopaque) void;
-const UpdateFn = fn (self: *anyopaque) void;
+const UpdateFn = fn (self: *anyopaque) anyerror!void;
 const RenderFn = fn (self: *anyopaque) void;
 const DeinitFn = fn (self: *anyopaque, std.mem.Allocator) void;
 
@@ -39,9 +39,9 @@ pub fn init(tool: anytype, alloc: std.mem.Allocator) !This {
             const toolData: *ToolType = @alignCast(@ptrCast(self));
             toolData.render();
         }
-        pub fn tick(self: *anyopaque) void {
+        pub fn tick(self: *anyopaque) !void {
             const toolData: *ToolType = @alignCast(@ptrCast(self));
-            toolData.tick();
+            try toolData.tick();
         }
         pub fn listen(self: *anyopaque) void {
             const toolData: *ToolType = @alignCast(@ptrCast(self));
@@ -70,8 +70,8 @@ pub fn render(self: This) void {
     self.renderFn(self.data);
 }
 
-pub fn tick(self: This) void {
-    self.tickFn(self.data);
+pub fn tick(self: This) !void {
+    try self.tickFn(self.data);
 }
 
 pub fn listen(self: This) void {

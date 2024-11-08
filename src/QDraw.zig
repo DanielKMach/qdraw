@@ -86,7 +86,9 @@ pub fn tick(self: *This) void {
     }
 
     if (self.selected_tool) |st| {
-        st.tick();
+        st.tick() catch |err| {
+            log.err("selected tool tick failed: {s}", .{@errorName(err)});
+        };
     }
 
     for (self.tools.items) |t| {
