@@ -24,14 +24,14 @@ pub fn init(allocator: std.mem.Allocator, trigger_key: raylib.KeyboardKey, conte
 
 pub fn tick(self: *This) void {
     if (raylib.isKeyDown(self.trigger_key)) {
+        const mpos = raylib.getScreenToWorld2D(raylib.getMousePosition(), self.context.camera.*);
         if (self.square == null) {
-            // std.debug.print("mouse = ({d}, {d})\r\n", .{@intFromFloat(raylib.getMousePosition().x), @intFromFloat(raylib.getMousePosition().y)});
-            self.squarex = raylib.getMouseX();
-            self.squarey = raylib.getMouseY();
+            self.squarex = @intFromFloat(mpos.x);
+            self.squarey = @intFromFloat(mpos.y);
             self.square = Square.init(0, 0);
         }
-        self.square.?.width = raylib.getMouseX() - self.squarex;
-        self.square.?.height = raylib.getMouseY() - self.squarey;
+        self.square.?.width = @as(i32, @intFromFloat(mpos.x)) - self.squarex;
+        self.square.?.height = @as(i32, @intFromFloat(mpos.y)) - self.squarey;
     } else {
         if (self.square) |sqr| {
             self.context.canvas.shapes.append(Shape.init(sqr, self.squarex, self.squarey, self.context.qdraw.allocator) catch unreachable) catch unreachable;
