@@ -30,6 +30,9 @@ pub fn init(shape: anytype, x: i32, y: i32, alloc: std.mem.Allocator) !This {
         }
         pub fn deinit(self: *anyopaque, allocator: std.mem.Allocator) void {
             const shapeData: *ShapeType = @alignCast(@ptrCast(self));
+            if (@hasDecl(ShapeType, "deinit")) {
+                shapeData.deinit(allocator);
+            }
             allocator.destroy(shapeData);
         }
     };
