@@ -5,6 +5,8 @@ const This = @This();
 const Shape = @import("shapes/Shape.zig");
 const Tool = @import("tools/Tool.zig");
 
+const log = std.log.scoped(.canvas);
+
 shapes: std.ArrayList(Shape),
 allocator: std.mem.Allocator,
 texture: raylib.RenderTexture,
@@ -24,7 +26,7 @@ pub fn init(allocator: std.mem.Allocator) !This {
 }
 
 pub fn requestRerender(self: *This) void {
-    std.debug.print("Requested rerender\r\n", .{});
+    log.info("Requested rerender", .{});
     self.rerender = true;
 }
 
@@ -37,7 +39,7 @@ pub fn render(self: *This) void {
         for (self.shapes.items) |shape| {
             shape.render();
         }
-        std.debug.print("Rerendered {d} shapes\r\n", .{self.shapes.items.len});
+        log.info("Rerendered {d} shapes", .{self.shapes.items.len});
     }
 
     const source = raylib.Rectangle.init(0, 0, @floatFromInt(self.texture.texture.width), @floatFromInt(-self.texture.texture.height));
