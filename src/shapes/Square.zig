@@ -36,6 +36,6 @@ pub fn render(self: This, x: i32, y: i32) void {
     raylib.drawRectangleLinesEx(rect, 5, raylib.Color.white);
 }
 
-pub fn shape(self: *This, x: i32, y: i32, alloc: std.mem.Allocator) Shape {
+pub fn shape(self: This, x: i32, y: i32, alloc: std.mem.Allocator) !Shape {
     return Shape.init(self, x, y, alloc);
 }

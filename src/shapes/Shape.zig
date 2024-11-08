@@ -2,13 +2,15 @@ const std = @import("std");
 const raylib = @import("raylib");
 
 const This = @This();
-const RenderFn = fn (self: *anyopaque, x: i32, y: i32) void;
+const RenderFn = fn (*anyopaque, i32, i32) void;
+const DeinitFn = fn (*anyopaque, std.mem.Allocator) void;
 
 x: i32,
 y: i32,
 alloc: std.mem.Allocator,
 data: *anyopaque,
 renderFn: *const RenderFn,
+deinitFn: *const DeinitFn,
 
 pub fn init(shape: anytype, x: i32, y: i32, alloc: std.mem.Allocator) !This {
     const ShapeType = @TypeOf(shape);
@@ -17,7 +19,6 @@ pub fn init(shape: anytype, x: i32, y: i32, alloc: std.mem.Allocator) !This {
     if (typeInfo != .Struct) {
         @compileError(@typeName(ShapeType) ++ " must be a struct");
     }
-
     if (!@hasDecl(ShapeType, "render")) {
         @compileError(@typeName(ShapeType) ++ " must have a render function");
     }
@@ -26,6 +27,10 @@ pub fn init(shape: anytype, x: i32, y: i32, alloc: std.mem.Allocator) !This {
         pub fn render(self: *anyopaque, px: i32, py: i32) void {
             const shapeData: *ShapeType = @alignCast(@ptrCast(self));
             shapeData.render(px, py);
+        }
+        pub fn deinit(self: *anyopaque, allocator: std.mem.Allocator) void {
+            const shapeData: *ShapeType = @alignCast(@ptrCast(self));
+            allocator.destroy(shapeData);
         }
     };
 
@@ -38,6 +43,7 @@ pub fn init(shape: anytype, x: i32, y: i32, alloc: std.mem.Allocator) !This {
         .alloc = alloc,
         .data = data,
         .renderFn = &Wrapper.render,
+        .deinitFn = &Wrapper.deinit,
     };
 }
 
@@ -46,5 +52,5 @@ pub fn render(self: This) void {
 }
 
 pub fn deinit(self: This) void {
-    self.alloc.destroy(self.data);
+    self.deinitFn(self.data, self.alloc);
 }
