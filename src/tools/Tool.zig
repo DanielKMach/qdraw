@@ -5,12 +5,14 @@ const This = @This();
 const ListenFn = fn (self: *anyopaque) void;
 const UpdateFn = fn (self: *anyopaque) void;
 const RenderFn = fn (self: *anyopaque) void;
+const DeinitFn = fn (self: *anyopaque, std.mem.Allocator) void;
 
 data: *anyopaque,
 alloc: std.mem.Allocator,
 renderFn: *const RenderFn,
 tickFn: *const UpdateFn,
 listenFn: *const ListenFn,
+deinitFn: *const DeinitFn,
 
 pub fn init(tool: anytype, alloc: std.mem.Allocator) !This {
     const ToolType = @TypeOf(tool);
@@ -60,6 +62,7 @@ pub fn init(tool: anytype, alloc: std.mem.Allocator) !This {
         .renderFn = &Wrapper.render,
         .tickFn = &Wrapper.tick,
         .listenFn = &Wrapper.listen,
+        .deinitFn = &Wrapper.deinit,
     };
 }
 
@@ -76,5 +79,5 @@ pub fn listen(self: This) void {
 }
 
 pub fn deinit(self: This) void {
-    self.alloc.destroy(self.data);
+    self.deinitFn(self.data, self.alloc);
 }
