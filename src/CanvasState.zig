@@ -10,7 +10,7 @@ const log = std.log.scoped(.canvas);
 shapes: std.ArrayList(Shape),
 allocator: std.mem.Allocator,
 texture: raylib.RenderTexture,
-rerender: bool = true,
+redraw: bool = true,
 
 pub fn init(allocator: std.mem.Allocator, width: i32, height: i32) !This {
     const texture = raylib.RenderTexture.init(width, height);
@@ -22,21 +22,21 @@ pub fn init(allocator: std.mem.Allocator, width: i32, height: i32) !This {
     };
 }
 
-pub fn requestRerender(self: *This) void {
-    log.info("Requested rerender", .{});
-    self.rerender = true;
+pub fn requestRedraw(self: *This) void {
+    log.info("Redraw requested", .{});
+    self.redraw = true;
 }
 
 pub fn render(self: *This) void {
-    if (self.rerender) {
-        defer self.rerender = false;
+    if (self.redraw) {
+        defer self.redraw = false;
         self.texture.begin();
         defer self.texture.end();
         raylib.clearBackground(raylib.Color.init(10, 10, 10, 255));
         for (self.shapes.items) |shape| {
             shape.render();
         }
-        log.info("Rerendered {d} shapes", .{self.shapes.items.len});
+        log.info("Redrawn {d} shapes", .{self.shapes.items.len});
     }
 
     const source = raylib.Rectangle.init(0, 0, @floatFromInt(self.texture.texture.width), @floatFromInt(-self.texture.texture.height));
@@ -48,5 +48,5 @@ pub fn clear(self: *This) void {
         shape.deinit();
     }
     self.shapes.clearAndFree();
-    self.requestRerender();
+    self.requestRedraw();
 }

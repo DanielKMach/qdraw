@@ -50,7 +50,7 @@ pub const Context = struct {
             shp = try Shape.init(shape, 0, 0, self.qdraw.allocator);
         }
         try self.canvas.shapes.append(shp);
-        self.canvas.requestRerender();
+        self.canvas.requestRedraw();
         return &self.canvas.shapes.items[self.canvas.shapes.items.len - 1];
     }
 };
