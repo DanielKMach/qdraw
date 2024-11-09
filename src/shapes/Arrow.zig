@@ -2,29 +2,26 @@ const std = @import("std");
 const raylib = @import("raylib");
 
 const This = @This();
-const Shape = @import("Shape.zig");
+const Line = @import("Line.zig");
 
-points: []raylib.Vector2,
+line: Line,
 
 pub fn init(points: []raylib.Vector2) This {
     return This{
-        .points = points,
+        .line = Line.init(points),
     };
 }
 
 pub fn render(self: This, x: i32, y: i32) void {
     const offset = raylib.Vector2.init(@floatFromInt(x), @floatFromInt(y));
-    if (self.points.len < 2) return;
-    for (0..self.points.len) |i| {
-        if (i == 0) continue;
-        raylib.drawLineEx(self.points[i].add(offset), self.points[i - 1].add(offset), 5, raylib.Color.white);
-    }
+    const points = self.line.points;
+    self.line.render(x, y);
 
     // Draw tip
-    const tip = self.points[self.points.len - 1];
+    const tip = points[points.len - 1];
     var before: raylib.Vector2 = undefined;
-    for (1..self.points.len) |i| {
-        before = self.points[self.points.len - i];
+    for (1..points.len) |i| {
+        before = points[points.len - i];
         if (before.distance(tip) > 10) break;
     }
     const dir = before.subtract(tip);
@@ -36,5 +33,5 @@ pub fn render(self: This, x: i32, y: i32) void {
 }
 
 pub fn deinit(self: This, alloc: std.mem.Allocator) void {
-    alloc.free(self.points);
+    self.line.deinit(alloc);
 }

@@ -35,11 +35,11 @@ pub fn tick(self: *This) !void {
         }
         if (self.points.items.len == 0 or self.points.items[self.points.items.len - 1].distance(mpos) > 10) {
             try self.points.append(mpos.subtract(raylib.Vector2.init(@floatFromInt(self.arrowx), @floatFromInt(self.arrowy))));
-            self.arrow.?.points = self.points.items;
+            self.arrow.?.line.points = self.points.items;
         }
     } else {
         if (self.arrow) |*arr| {
-            arr.points = try self.points.toOwnedSlice();
+            arr.line.points = try self.points.toOwnedSlice();
             try self.context.canvas.shapes.append(try Shape.init(arr.*, self.arrowx, self.arrowy, self.context.qdraw.allocator));
             self.context.canvas.requestRerender();
             self.arrow = null;
