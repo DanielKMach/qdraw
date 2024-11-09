@@ -70,6 +70,7 @@ pub fn init(allocator: std.mem.Allocator) !This {
 pub fn tick(self: *This) void {
     { // Camera controller
         self.camera.zoom += raylib.getMouseWheelMove() / 10.0;
+        self.camera.zoom = raylib.math.clamp(self.camera.zoom, 0.2, 2);
 
         const mpos = raylib.getMousePosition();
         const delta = blk: {
