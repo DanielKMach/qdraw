@@ -34,8 +34,9 @@ pub fn tick(self: *This) !void {
         self.square.?.height = @as(i32, @intFromFloat(mpos.y)) - self.squarey;
     } else {
         if (self.square) |sqr| {
-            self.context.canvas.shapes.append(Shape.init(sqr, self.squarex, self.squarey, self.context.qdraw.allocator) catch unreachable) catch unreachable;
-            self.context.canvas.requestRerender();
+            const shp = try self.context.addShape(sqr);
+            shp.x = self.squarex;
+            shp.y = self.squarey;
             self.square = null;
             self.context.releaseFocus(self);
         }

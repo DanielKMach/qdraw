@@ -4,6 +4,7 @@ const raylib = @import("raylib");
 const This = @This();
 const CanvasState = @import("CanvasState.zig");
 const Tool = @import("tools/Tool.zig");
+const Shape = @import("shapes/Shape.zig");
 
 const log = std.log.scoped(.qdraw);
 
@@ -39,6 +40,18 @@ pub const Context = struct {
             log.info(@typeName(@TypeOf(tool)) ++ " released focus", .{});
             self.qdraw.selected_tool = null;
         }
+    }
+
+    pub fn addShape(self: Context, shape: anytype) !*Shape {
+        var shp: Shape = undefined;
+        if (@TypeOf(shape) == Shape) {
+            shp = shape;
+        } else {
+            shp = try Shape.init(shape, 0, 0, self.qdraw.allocator);
+        }
+        try self.canvas.shapes.append(shp);
+        self.canvas.requestRerender();
+        return &self.canvas.shapes.items[self.canvas.shapes.items.len - 1];
     }
 };
 

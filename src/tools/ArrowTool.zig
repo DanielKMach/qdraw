@@ -40,8 +40,9 @@ pub fn tick(self: *This) !void {
     } else {
         if (self.arrow) |*arr| {
             arr.line.points = try self.points.toOwnedSlice();
-            try self.context.canvas.shapes.append(try Shape.init(arr.*, self.arrowx, self.arrowy, self.context.qdraw.allocator));
-            self.context.canvas.requestRerender();
+            const shp = try self.context.addShape(arr.*);
+            shp.x = self.arrowx;
+            shp.y = self.arrowy;
             self.arrow = null;
             self.context.releaseFocus(self);
         }

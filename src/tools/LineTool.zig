@@ -38,8 +38,9 @@ pub fn tick(self: *This) !void {
     } else {
         if (self.line) |*line| {
             line.points = try self.points.toOwnedSlice();
-            try self.context.canvas.shapes.append(try Shape.init(line.*, self.linex, self.liney, self.context.qdraw.allocator));
-            self.context.canvas.requestRerender();
+            const shp = try self.context.addShape(line.*);
+            shp.x = self.linex;
+            shp.y = self.liney;
             self.line = null;
             self.context.releaseFocus(self);
         }
