@@ -56,11 +56,8 @@ pub fn init(allocator: std.mem.Allocator) !This {
         .canvas = canvas,
         .tools = std.ArrayList(Tool).init(allocator),
         .camera = raylib.Camera2D{
-            .offset = raylib.Vector2.init(
-                @floatFromInt(@divTrunc(raylib.getScreenHeight(), 2)),
-                @floatFromInt(@divTrunc(raylib.getScreenHeight(), 2)),
-            ),
-            .target = raylib.Vector2.init(0, 0),
+            .offset = raylib.Vector2.zero(),
+            .target = raylib.Vector2.zero(),
             .rotation = 0,
             .zoom = 1,
         },
@@ -69,20 +66,17 @@ pub fn init(allocator: std.mem.Allocator) !This {
 
 pub fn tick(self: *This) void {
     { // Camera controller
-        self.camera.zoom += raylib.getMouseWheelMove() / 10.0;
+        self.camera.zoom += raylib.getMouseWheelMoveV().scale(0.1).y;
         self.camera.zoom = raylib.math.clamp(self.camera.zoom, 0.2, 2);
 
         const mpos = raylib.getMousePosition();
-        const delta = blk: {
-            const d = raylib.getMouseDelta();
-            break :blk raylib.Vector2.init(d.x / self.camera.zoom, d.y / self.camera.zoom);
-        };
+        const delta = raylib.getMouseDelta().scale(1 / self.camera.zoom);
 
-        self.camera.target = raylib.math.vector2Add(self.camera.target, delta);
+        self.camera.target = self.camera.target.add(delta);
         self.camera.offset = mpos;
 
         if (raylib.isMouseButtonDown(.mouse_button_right)) {
-            self.camera.target = raylib.math.vector2Subtract(self.camera.target, delta);
+            self.camera.target = self.camera.target.subtract(delta);
         }
     }
 
