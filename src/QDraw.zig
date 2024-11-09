@@ -49,7 +49,7 @@ tools: std.ArrayList(Tool),
 selected_tool: ?Tool = null,
 
 pub fn init(allocator: std.mem.Allocator) !This {
-    const canvas = try CanvasState.init(allocator);
+    const canvas = try CanvasState.init(allocator, 1024, 1024);
 
     return This{
         .allocator = allocator,

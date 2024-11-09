@@ -12,11 +12,8 @@ allocator: std.mem.Allocator,
 texture: raylib.RenderTexture,
 rerender: bool = true,
 
-pub fn init(allocator: std.mem.Allocator) !This {
-    const texture = raylib.RenderTexture.init(
-        raylib.getScreenWidth(),
-        raylib.getScreenHeight(),
-    );
+pub fn init(allocator: std.mem.Allocator, width: i32, height: i32) !This {
+    const texture = raylib.RenderTexture.init(width, height);
 
     return This{
         .shapes = std.ArrayList(Shape).init(allocator),
