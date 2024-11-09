@@ -45,3 +45,11 @@ pub fn render(self: *This) void {
     const source = raylib.Rectangle.init(0, 0, @floatFromInt(self.texture.texture.width), @floatFromInt(-self.texture.texture.height));
     raylib.drawTextureRec(self.texture.texture, source, raylib.Vector2.init(0, 0), raylib.Color.white);
 }
+
+pub fn clear(self: *This) void {
+    for (self.shapes.items) |shape| {
+        shape.deinit();
+    }
+    self.shapes.clearAndFree();
+    self.requestRerender();
+}

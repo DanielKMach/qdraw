@@ -85,6 +85,10 @@ pub fn tick(self: *This) void {
         }
     }
 
+    if (raylib.isKeyPressed(.key_delete)) {
+        self.canvas.clear();
+    }
+
     if (self.selected_tool) |st| {
         st.tick() catch |err| {
             log.err("selected tool tick failed: {s}", .{@errorName(err)});
