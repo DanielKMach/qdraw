@@ -18,7 +18,7 @@ pub fn render(self: This, x: i32, y: i32) void {
     drawLineTip(self.points[0].add(offset), 5, raylib.Color.white);
     for (0..self.points.len) |i| {
         if (i == 0) continue;
-        drawLine(self.points[i].add(offset), self.points[i - 1].add(offset), 5, raylib.Color.white);
+        drawLine(self.points[i - 1].add(offset), self.points[i].add(offset), 5, raylib.Color.white);
     }
 }
 
