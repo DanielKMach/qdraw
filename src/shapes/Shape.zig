@@ -2,11 +2,12 @@ const std = @import("std");
 const raylib = @import("raylib");
 
 const This = @This();
-const RenderFn = fn (*anyopaque, i32, i32) void;
+const RenderFn = fn (*anyopaque, i32, i32, raylib.Color) void;
 const DeinitFn = fn (*anyopaque, std.mem.Allocator) void;
 
 x: i32,
 y: i32,
+color: raylib.Color,
 alloc: std.mem.Allocator,
 data: *anyopaque,
 renderFn: *const RenderFn,
@@ -24,9 +25,9 @@ pub fn init(shape: anytype, x: i32, y: i32, alloc: std.mem.Allocator) !This {
     }
 
     const Wrapper = struct {
-        pub fn render(self: *anyopaque, px: i32, py: i32) void {
+        pub fn render(self: *anyopaque, px: i32, py: i32, color: raylib.Color) void {
             const shapeData: *ShapeType = @alignCast(@ptrCast(self));
-            shapeData.render(px, py);
+            shapeData.render(px, py, color);
         }
         pub fn deinit(self: *anyopaque, allocator: std.mem.Allocator) void {
             const shapeData: *ShapeType = @alignCast(@ptrCast(self));
@@ -43,6 +44,7 @@ pub fn init(shape: anytype, x: i32, y: i32, alloc: std.mem.Allocator) !This {
     return This{
         .x = x,
         .y = y,
+        .color = raylib.Color.white,
         .alloc = alloc,
         .data = data,
         .renderFn = &Wrapper.render,
@@ -51,7 +53,11 @@ pub fn init(shape: anytype, x: i32, y: i32, alloc: std.mem.Allocator) !This {
 }
 
 pub fn render(self: This) void {
-    self.renderFn(self.data, self.x, self.y);
+    self.renderFn(self.data, self.x, self.y, self.color);
+}
+
+pub fn renderColored(self: This, color: raylib.Color) void {
+    self.renderFn(self.data, self.x, self.y, color);
 }
 
 pub fn deinit(self: This) void {

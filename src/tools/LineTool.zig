@@ -55,6 +55,6 @@ pub fn listen(self: *This) void {
 
 pub fn render(self: *This) void {
     if (self.line) |s| {
-        s.render(self.linex, self.liney);
+        s.render(self.linex, self.liney, raylib.Color.white);
     }
 }

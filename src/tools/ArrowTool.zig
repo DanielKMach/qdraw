@@ -57,6 +57,6 @@ pub fn listen(self: *This) void {
 
 pub fn render(self: *This) void {
     if (self.arrow) |s| {
-        s.render(self.arrowx, self.arrowy);
+        s.render(self.arrowx, self.arrowy, raylib.Color.white);
     }
 }

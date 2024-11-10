@@ -12,10 +12,10 @@ pub fn init(points: []raylib.Vector2) This {
     };
 }
 
-pub fn render(self: This, x: i32, y: i32) void {
+pub fn render(self: This, x: i32, y: i32, color: raylib.Color) void {
     const offset = raylib.Vector2.init(@floatFromInt(x), @floatFromInt(y));
     const points = self.line.points;
-    self.line.render(x, y);
+    self.line.render(x, y, color);
 
     // Draw tip
     const tip = points[points.len - 1];
@@ -27,9 +27,9 @@ pub fn render(self: This, x: i32, y: i32) void {
     const dir = before.subtract(tip);
     const dirn = dir.normalize();
     const tip1 = tip.add(dirn.rotate(45 * std.math.rad_per_deg).scale(20));
-    Line.drawLine(tip.add(offset), tip1.add(offset), 5, raylib.Color.white);
+    Line.drawLine(tip.add(offset), tip1.add(offset), 5, color);
     const tip2 = tip.add(dirn.rotate(-45 * std.math.rad_per_deg).scale(20));
-    Line.drawLine(tip.add(offset), tip2.add(offset), 5, raylib.Color.white);
+    Line.drawLine(tip.add(offset), tip2.add(offset), 5, color);
 }
 
 pub fn deinit(self: This, alloc: std.mem.Allocator) void {

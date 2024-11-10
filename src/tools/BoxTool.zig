@@ -51,6 +51,6 @@ pub fn listen(self: *This) void {
 
 pub fn render(self: *This) void {
     if (self.square) |s| {
-        s.render(self.squarex, self.squarey);
+        s.render(self.squarex, self.squarey, raylib.Color.white);
     }
 }

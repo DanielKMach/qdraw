@@ -12,13 +12,13 @@ pub fn init(points: []raylib.Vector2) This {
     };
 }
 
-pub fn render(self: This, x: i32, y: i32) void {
+pub fn render(self: This, x: i32, y: i32, color: raylib.Color) void {
     const offset = raylib.Vector2.init(@floatFromInt(x), @floatFromInt(y));
     if (self.points.len == 0) return;
-    drawLineTip(self.points[0].add(offset), 5, raylib.Color.white);
+    drawLineTip(self.points[0].add(offset), 5, color);
     for (0..self.points.len) |i| {
         if (i == 0) continue;
-        drawLine(self.points[i - 1].add(offset), self.points[i].add(offset), 5, raylib.Color.white);
+        drawLine(self.points[i - 1].add(offset), self.points[i].add(offset), 5, color);
     }
 }
 

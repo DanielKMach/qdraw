@@ -14,7 +14,7 @@ pub fn init(width: i32, height: i32) This {
     };
 }
 
-pub fn render(self: This, x: i32, y: i32) void {
+pub fn render(self: This, x: i32, y: i32, color: raylib.Color) void {
     var fx: i32 = x;
     var fy: i32 = y;
     var w: i32 = self.width;
@@ -33,7 +33,7 @@ pub fn render(self: This, x: i32, y: i32) void {
         @floatFromInt(w),
         @floatFromInt(h),
     );
-    raylib.drawRectangleLinesEx(rect, 5, raylib.Color.white);
+    raylib.drawRectangleLinesEx(rect, 5, color);
 }
 
 pub fn shape(self: This, x: i32, y: i32, alloc: std.mem.Allocator) !Shape {
