@@ -26,7 +26,7 @@ pub fn tick(self: *This) !void {
     const lastpos = raylib.getScreenToWorld2D(raylib.getMousePosition().subtract(raylib.getMouseDelta()), self.context.camera.*);
     const delta = mpos.subtract(lastpos);
 
-    if (raylib.isKeyUp(self.trigger_key)) {
+    if (raylib.isKeyUp(self.trigger_key) and self.shapes.items.len == 0) {
         self.shapes.clearRetainingCapacity();
         self.context.releaseFocus(self);
         return;
@@ -40,6 +40,11 @@ pub fn tick(self: *This) !void {
         return;
     } else if (raylib.isMouseButtonReleased(.mouse_button_left)) {
         self.context.canvas.requestRedraw();
+    }
+
+    if (raylib.isKeyDown(.key_left_control) and raylib.isKeyPressed(.key_d)) {
+        self.shapes.clearRetainingCapacity();
+        return;
     }
 
     if (raylib.isKeyPressed(.key_d) and self.shapes.items.len > 0) {
