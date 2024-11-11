@@ -7,6 +7,7 @@ const QDraw = @import("QDraw.zig");
 const BoxTool = @import("tools/BoxTool.zig");
 const ArrowTool = @import("tools/ArrowTool.zig");
 const LineTool = @import("tools/LineTool.zig");
+const SelectionTool = @import("tools/SelectionTool.zig");
 const Tool = @import("tools/Tool.zig");
 
 pub fn main() anyerror!void {
@@ -21,12 +22,14 @@ pub fn main() anyerror!void {
 
     const allocator = std.heap.page_allocator;
     var qdraw = try QDraw.init(allocator);
-    const box_tool = BoxTool.init(allocator, .key_s, QDraw.Context.init(&qdraw));
-    const arrow_tool = ArrowTool.init(allocator, .key_a, QDraw.Context.init(&qdraw));
     const line_tool = LineTool.init(allocator, QDraw.Context.init(&qdraw));
+    const box_tool = BoxTool.init(allocator, .key_q, QDraw.Context.init(&qdraw));
+    const arrow_tool = ArrowTool.init(allocator, .key_a, QDraw.Context.init(&qdraw));
+    const selection_tool = SelectionTool.init(allocator, .key_s, QDraw.Context.init(&qdraw));
+    try qdraw.tools.append(try Tool.init(line_tool, allocator));
     try qdraw.tools.append(try Tool.init(box_tool, allocator));
     try qdraw.tools.append(try Tool.init(arrow_tool, allocator));
-    try qdraw.tools.append(try Tool.init(line_tool, allocator));
+    try qdraw.tools.append(try Tool.init(selection_tool, allocator));
 
     while (!raylib.windowShouldClose()) {
         qdraw.tick();
