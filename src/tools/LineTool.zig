@@ -48,7 +48,7 @@ pub fn tick(self: *This) !void {
 }
 
 pub fn listen(self: *This) void {
-    if (raylib.isMouseButtonDown(.mouse_button_left)) {
+    if (raylib.isMouseButtonPressed(.mouse_button_left)) {
         self.context.requestFocus(self);
     }
 }
