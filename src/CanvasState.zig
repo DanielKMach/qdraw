@@ -11,7 +11,6 @@ shapes: std.ArrayList(Shape),
 allocator: std.mem.Allocator,
 texture: raylib.RenderTexture,
 obj_map: raylib.Image,
-redraw_requested: bool = true,
 
 pub fn init(allocator: std.mem.Allocator, width: i32, height: i32) !This {
     const texture = raylib.RenderTexture.init(width, height);
@@ -23,11 +22,6 @@ pub fn init(allocator: std.mem.Allocator, width: i32, height: i32) !This {
         .texture = texture,
         .obj_map = obj_map,
     };
-}
-
-pub fn requestRedraw(self: *This) void {
-    self.redraw_requested = true;
-    log.info("Redraw requested", .{});
 }
 
 pub fn pickShape(self: *This, x: i32, y: i32) ?*Shape {
@@ -46,8 +40,6 @@ pub fn pickShapeV(self: *This, v: raylib.Vector2) ?*Shape {
 }
 
 pub fn redraw(self: *This) void {
-    if (!self.redraw_requested) return;
-    defer self.redraw_requested = false;
     {
         self.texture.begin();
         defer self.texture.end();
@@ -78,10 +70,6 @@ pub fn redraw(self: *This) void {
 }
 
 pub fn render(self: *This) void {
-    if (self.redraw_requested) {
-        self.redraw();
-    }
-
     const source = raylib.Rectangle.init(0, 0, @floatFromInt(self.texture.texture.width), @floatFromInt(-self.texture.texture.height));
     raylib.drawTextureRec(self.texture.texture, source, raylib.Vector2.init(0, 0), raylib.Color.white);
 }
@@ -91,5 +79,4 @@ pub fn clear(self: *This) void {
         shape.deinit();
     }
     self.shapes.clearAndFree();
-    self.requestRedraw();
 }

@@ -50,7 +50,7 @@ pub const Context = struct {
             shp = try Shape.init(shape, 0, 0, self.qdraw.allocator);
         }
         try self.canvas.shapes.append(shp);
-        self.canvas.requestRedraw();
+        self.qdraw.requestRedraw();
         return &self.canvas.shapes.items[self.canvas.shapes.items.len - 1];
     }
 };
@@ -60,6 +60,7 @@ canvas: CanvasState,
 camera: raylib.Camera2D,
 tools: std.ArrayList(Tool),
 selected_tool: ?Tool = null,
+redraw_requested: bool = true,
 
 pub fn init(allocator: std.mem.Allocator) !This {
     const canvas = try CanvasState.init(allocator, 1024, 1024);
@@ -75,6 +76,10 @@ pub fn init(allocator: std.mem.Allocator) !This {
             .zoom = 1,
         },
     };
+}
+pub fn requestRedraw(self: *This) void {
+    self.redraw_requested = true;
+    log.info("Redraw requested", .{});
 }
 
 pub fn tick(self: *This) void {
@@ -95,6 +100,7 @@ pub fn tick(self: *This) void {
 
     if (raylib.isKeyPressed(.key_delete)) {
         self.canvas.clear();
+        self.requestRedraw();
     }
 
     if (self.selected_tool) |st| {
@@ -109,6 +115,11 @@ pub fn tick(self: *This) void {
 }
 
 pub fn render(self: *This) void {
+    if (self.redraw_requested) {
+        self.redraw_requested = false;
+        self.canvas.redraw();
+    }
+
     self.camera.begin();
     defer self.camera.end();
 

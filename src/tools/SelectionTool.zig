@@ -39,7 +39,7 @@ pub fn tick(self: *This) !void {
         }
         return;
     } else if (raylib.isMouseButtonReleased(.mouse_button_left)) {
-        self.context.canvas.requestRedraw();
+        self.context.qdraw.requestRedraw();
     }
 
     if (raylib.isKeyDown(.key_left_control) and raylib.isKeyPressed(.key_d)) {
@@ -60,7 +60,7 @@ pub fn tick(self: *This) !void {
             }
         }
         self.shapes.clearRetainingCapacity();
-        self.context.canvas.requestRedraw();
+        self.context.qdraw.requestRedraw();
         return;
     }
 
