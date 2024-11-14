@@ -63,7 +63,7 @@ selected_tool: ?Tool = null,
 redraw_requested: bool = true,
 
 pub fn init(allocator: std.mem.Allocator) !This {
-    const canvas = try CanvasState.init(allocator, 1024, 1024);
+    const canvas = try CanvasState.init(allocator, 2048, 1024);
 
     return This{
         .allocator = allocator,
