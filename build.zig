@@ -1,9 +1,12 @@
 const std = @import("std");
+const rlz = @import("raylib-zig");
 
-// Although this function looks imperative, note that its job is to
-// declaratively construct a build graph that will be executed by an external
-// runner.
-pub fn build(b: *std.Build) void {
+const config = struct {
+    const emcc_path = "C:\\Tools\\emsdk\\upstream\\emscripten";
+    const shell_file = "shell.html";
+};
+
+pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
@@ -12,8 +15,35 @@ pub fn build(b: *std.Build) void {
     const run_step = b.step("run", "Run the app");
     const test_step = b.step("test", "Run unit tests");
 
+    if (target.query.os_tag == .emscripten and config.emcc_path.len > 0) {
+        b.sysroot = config.emcc_path;
+    }
+
     // Dependencies
-    const raylib_dep = b.dependency("raylib-zig", .{});
+    const raylib_dep = b.dependency("raylib-zig", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
+    if (target.query.os_tag == .emscripten) {
+        const proj_lib = rlz.emcc.compileForEmscripten(b, "qdraw", "src/main.zig", target, optimize);
+
+        linkRaylib(raylib_dep, proj_lib);
+
+        const link_emcc = try rlz.emcc.linkWithEmscripten(b, &.{ proj_lib, raylib_dep.artifact("raylib") });
+        if (config.shell_file.len > 0) {
+            link_emcc.addArgs(&.{ "--shell-file", config.shell_file });
+        }
+        if (b.args) |args| {
+            link_emcc.addArgs(args);
+        }
+
+        install_step.dependOn(&link_emcc.step);
+        const run_emcc = try rlz.emcc.emscriptenRunStep(b);
+        run_emcc.step.dependOn(&link_emcc.step);
+        run_step.dependOn(&run_emcc.step);
+        return;
+    }
 
     const exe = b.addExecutable(.{
         .name = "qdraw",

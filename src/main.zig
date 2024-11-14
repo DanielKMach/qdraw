@@ -1,3 +1,4 @@
+const builtin = @import("builtin");
 const std = @import("std");
 const raylib = @import("raylib");
 
@@ -20,7 +21,11 @@ pub fn main() anyerror!void {
 
     raylib.setTargetFPS(60);
 
-    const allocator = std.heap.page_allocator;
+    const allocator = switch (builtin.os.tag) {
+        .wasi, .emscripten => std.heap.c_allocator,
+        else => std.heap.page_allocator,
+    };
+
     var qdraw = try QDraw.init(allocator);
     const line_tool = LineTool.init(allocator, QDraw.Context.init(&qdraw));
     const box_tool = BoxTool.init(allocator, .key_q, QDraw.Context.init(&qdraw));
