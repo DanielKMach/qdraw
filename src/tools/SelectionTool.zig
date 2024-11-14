@@ -9,6 +9,8 @@ const Shape = @import("../shapes/Shape.zig");
 context: QDraw.Context,
 allocator: std.mem.Allocator,
 trigger_key: raylib.KeyboardKey,
+shader: raylib.Shader,
+texture: raylib.RenderTexture,
 
 shapes: std.ArrayList(*Shape),
 
@@ -18,6 +20,8 @@ pub fn init(allocator: std.mem.Allocator, trigger_key: raylib.KeyboardKey, conte
         .trigger_key = trigger_key,
         .allocator = allocator,
         .shapes = std.ArrayList(*Shape).init(allocator),
+        .shader = raylib.loadShaderFromMemory(null, @embedFile("selection.frag")),
+        .texture = raylib.RenderTexture.init(context.canvas.texture.texture.width, context.canvas.texture.texture.height),
     };
 }
 
@@ -84,7 +88,35 @@ pub fn listen(self: *This) void {
 }
 
 pub fn render(self: *This) void {
-    for (self.shapes.items) |shp| {
-        shp.renderColored(raylib.Color.blue);
+    {
+        self.texture.begin();
+        defer self.texture.end();
+
+        raylib.clearBackground(raylib.Color.blank);
+        for (self.shapes.items) |shp| {
+            shp.renderColored(raylib.Color.white);
+        }
+    }
+    {
+        raylib.beginShaderMode(self.shader);
+        defer raylib.endShaderMode();
+        // IDK why but this is rendering relative to the screen, not the world
+        // so I did a bunch of math to make it work
+        const src = raylib.Rectangle.init(
+            0,
+            0,
+            @floatFromInt(self.texture.texture.width),
+            @floatFromInt(-self.texture.texture.height),
+        );
+        const topleft = raylib.getWorldToScreen2D(raylib.Vector2.zero(), self.context.camera.*);
+        const bottomright = raylib.getWorldToScreen2D(raylib.Vector2.init(@floatFromInt(self.texture.texture.width), @floatFromInt(self.texture.texture.height)), self.context.camera.*);
+        const size = bottomright.subtract(topleft);
+        const dest = raylib.Rectangle.init(
+            topleft.x,
+            topleft.y,
+            size.x,
+            size.y,
+        );
+        raylib.drawTexturePro(self.texture.texture, src, dest, raylib.Vector2.zero(), 0, raylib.Color.blue);
     }
 }
