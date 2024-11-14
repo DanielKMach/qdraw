@@ -30,12 +30,6 @@ pub fn tick(self: *This) !void {
     const lastpos = raylib.getScreenToWorld2D(raylib.getMousePosition().subtract(raylib.getMouseDelta()), self.context.camera.*);
     const delta = mpos.subtract(lastpos);
 
-    if (raylib.isKeyUp(self.trigger_key) and self.shapes.items.len == 0) {
-        self.shapes.clearRetainingCapacity();
-        self.context.releaseFocus(self);
-        return;
-    }
-
     if (raylib.isMouseButtonDown(.mouse_button_left)) {
         for (self.shapes.items) |shp| {
             shp.x += @intFromFloat(delta.x);
@@ -68,16 +62,20 @@ pub fn tick(self: *This) !void {
         return;
     }
 
-    var t: f32 = 0;
-    while (t <= delta.length()) : (t += 1) {
-        const hover = self.context.canvas.pickShapeV(mpos.add(delta.normalize().scale(t)));
-        if (hover) |h| {
-            for (self.shapes.items) |shp| {
-                if (shp == h) break;
-            } else {
-                try self.shapes.append(h);
+    if (raylib.isKeyDown(self.trigger_key)) {
+        var t: f32 = 0;
+        while (t <= delta.length()) : (t += 1) {
+            const hover = self.context.canvas.pickShapeV(mpos.add(delta.normalize().scale(t)));
+            if (hover) |h| {
+                for (self.shapes.items) |shp| {
+                    if (shp == h) break;
+                } else {
+                    try self.shapes.append(h);
+                }
             }
         }
+    } else if (raylib.isKeyUp(self.trigger_key) and self.shapes.items.len == 0) {
+        self.context.releaseFocus(self);
     }
 }
 
