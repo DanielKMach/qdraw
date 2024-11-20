@@ -4,6 +4,8 @@ const rlz = @import("raylib-zig");
 const config = struct {
     const emcc_path = "C:\\Tools\\emsdk\\upstream\\emscripten";
     const shell_file = "shell.html";
+    const name = "QDraw";
+    const main_file = "src/main.zig";
 };
 
 pub fn build(b: *std.Build) !void {
@@ -15,7 +17,7 @@ pub fn build(b: *std.Build) !void {
     const run_step = b.step("run", "Run the app");
     const test_step = b.step("test", "Run unit tests");
 
-    if (target.query.os_tag == .emscripten and config.emcc_path.len > 0) {
+    if (target.query.os_tag == .emscripten and b.sysroot == null) {
         b.sysroot = config.emcc_path;
     }
 
@@ -26,9 +28,13 @@ pub fn build(b: *std.Build) !void {
     });
 
     if (target.query.os_tag == .emscripten) {
-        const proj_lib = rlz.emcc.compileForEmscripten(b, "qdraw", "src/main.zig", target, optimize);
+        const proj_lib = rlz.emcc.compileForEmscripten(b, config.name, config.main_file, target, optimize);
 
         linkRaylib(raylib_dep, proj_lib);
+
+        const include_path = b.pathJoin(&.{ b.sysroot.?, "cache", "sysroot", "include" });
+        defer b.allocator.free(include_path);
+        proj_lib.addIncludePath(.{ .cwd_relative = include_path });
 
         const link_emcc = try rlz.emcc.linkWithEmscripten(b, &.{ proj_lib, raylib_dep.artifact("raylib") });
         if (config.shell_file.len > 0) {
@@ -46,8 +52,8 @@ pub fn build(b: *std.Build) !void {
     }
 
     const exe = b.addExecutable(.{
-        .name = "qdraw",
-        .root_source_file = b.path("src/main.zig"),
+        .name = config.name,
+        .root_source_file = b.path(config.main_file),
         .target = target,
         .optimize = optimize,
     });

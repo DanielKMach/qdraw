@@ -1,6 +1,7 @@
 const builtin = @import("builtin");
 const std = @import("std");
 const raylib = @import("raylib");
+const emscripten = if (builtin.os.tag == .emscripten) @cImport(@cInclude("emscripten.h")) else undefined;
 
 const Square = @import("shapes/Square.zig");
 const Shape = @import("shapes/Shape.zig");
@@ -10,6 +11,8 @@ const ArrowTool = @import("tools/ArrowTool.zig");
 const LineTool = @import("tools/LineTool.zig");
 const SelectionTool = @import("tools/SelectionTool.zig");
 const Tool = @import("tools/Tool.zig");
+
+var qdraw: QDraw = undefined;
 
 pub fn main() anyerror!void {
     const screenWidth = 1080;
@@ -26,7 +29,7 @@ pub fn main() anyerror!void {
         else => std.heap.page_allocator,
     };
 
-    var qdraw = try QDraw.init(allocator);
+    qdraw = try QDraw.init(allocator);
     const line_tool = LineTool.init(allocator, QDraw.Context.init(&qdraw));
     const box_tool = BoxTool.init(allocator, .key_q, QDraw.Context.init(&qdraw));
     const arrow_tool = ArrowTool.init(allocator, .key_a, QDraw.Context.init(&qdraw));
@@ -36,13 +39,21 @@ pub fn main() anyerror!void {
     try qdraw.tools.append(try Tool.init(arrow_tool, allocator));
     try qdraw.tools.append(try Tool.init(selection_tool, allocator));
 
-    while (!raylib.windowShouldClose()) {
-        qdraw.tick();
-
-        raylib.beginDrawing();
-        defer raylib.endDrawing();
-
-        raylib.clearBackground(raylib.Color.init(32, 32, 32, 255));
-        qdraw.render();
+    if (builtin.os.tag == .emscripten) {
+        emscripten.emscripten_set_main_loop(updateFrame, 0, 1);
+    } else {
+        while (!raylib.windowShouldClose()) {
+            updateFrame();
+        }
     }
+}
+
+fn updateFrame() callconv(.C) void {
+    qdraw.tick();
+
+    raylib.beginDrawing();
+    defer raylib.endDrawing();
+
+    raylib.clearBackground(raylib.Color.init(32, 32, 32, 255));
+    qdraw.render();
 }

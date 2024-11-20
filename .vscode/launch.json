@@ -6,7 +6,7 @@
             "type": "gdb",
             "preLaunchTask": "build",
             "request": "launch",
-            "target": "./zig-out/bin/qdraw.exe",
+            "target": "./zig-out/bin/QDraw.exe",
             "cwd": "${workspaceRoot}",
             "valuesFormatting": "parseText"
         }
