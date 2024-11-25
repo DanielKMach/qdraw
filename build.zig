@@ -37,6 +37,13 @@ pub fn build(b: *std.Build) !void {
         proj_lib.addIncludePath(.{ .cwd_relative = include_path });
 
         const link_emcc = try rlz.emcc.linkWithEmscripten(b, &.{ proj_lib, raylib_dep.artifact("raylib") });
+
+        const optization_args: []const []const u8 = switch (optimize) {
+            .Debug => &.{ "-O0", "-g", "--check", "-sASSERTIONS=2", "-sSTACK_OVERFLOW_CHECK=2" },
+            else => &.{ "-O3", "-g0", "-sASSERTIONS=0", "-sSTACK_OVERFLOW_CHECK=0" },
+        };
+        link_emcc.addArgs(optization_args);
+
         if (config.shell_file.len > 0) {
             link_emcc.addArgs(&.{ "--shell-file", config.shell_file });
         }

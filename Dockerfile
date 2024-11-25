@@ -1,5 +1,5 @@
 # Use an official Ubuntu as a parent image
-FROM ubuntu:20.04
+FROM ubuntu/nginx:latest
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -40,10 +40,5 @@ WORKDIR /usr/src/app
 COPY . .
 
 # Build zig project
-RUN zig build -Dtarget=wasm32-emscripten --sysroot /opt/emsdk/upstream/emscripten
-
-# Expose port to the outside world
-EXPOSE 6931
-
-# Run with emrun
-CMD ["/opt/emsdk/upstream/emscripten/emrun", "/usr/src/app/zig-out/htmlout/index.html"]
+RUN zig build -Dtarget=wasm32-emscripten --sysroot /opt/emsdk/upstream/emscripten --release=safe && \
+    cp zig-out/htmlout/* /var/www/html

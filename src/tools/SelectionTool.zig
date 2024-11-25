@@ -1,5 +1,6 @@
 const std = @import("std");
 const raylib = @import("raylib");
+const main = @import("../main.zig");
 
 const This = @This();
 
@@ -20,7 +21,7 @@ pub fn init(allocator: std.mem.Allocator, trigger_key: raylib.KeyboardKey, conte
         .trigger_key = trigger_key,
         .allocator = allocator,
         .shapes = std.ArrayList(*Shape).init(allocator),
-        .shader = raylib.loadShaderFromMemory(null, @embedFile("selection.frag")),
+        .shader = raylib.loadShaderFromMemory(null, @embedFile("selection." ++ main.glslVersion() ++ ".frag")),
         .texture = raylib.RenderTexture.init(context.canvas.texture.texture.width, context.canvas.texture.texture.height),
     };
 }
@@ -40,7 +41,7 @@ pub fn tick(self: *This) !void {
         self.context.qdraw.requestRedraw();
     }
 
-    if (raylib.isKeyDown(.key_left_control) and raylib.isKeyPressed(.key_d)) {
+    if (raylib.isKeyPressed(.key_w)) {
         self.shapes.clearRetainingCapacity();
         return;
     }

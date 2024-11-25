@@ -1,7 +1,7 @@
 const builtin = @import("builtin");
 const std = @import("std");
 const raylib = @import("raylib");
-const emscripten = if (builtin.os.tag == .emscripten) @cImport(@cInclude("emscripten.h")) else undefined;
+const emscripten = if (isWeb()) @cImport(@cInclude("emscripten.h")) else undefined;
 
 const Square = @import("shapes/Square.zig");
 const Shape = @import("shapes/Shape.zig");
@@ -15,7 +15,7 @@ const Tool = @import("tools/Tool.zig");
 var qdraw: QDraw = undefined;
 
 pub fn main() anyerror!void {
-    const screenWidth = 1080;
+    const screenWidth = 1280;
     const screenHeight = 720;
 
     raylib.setConfigFlags(.{ .window_resizable = true });
@@ -39,7 +39,7 @@ pub fn main() anyerror!void {
     try qdraw.tools.append(try Tool.init(arrow_tool, allocator));
     try qdraw.tools.append(try Tool.init(selection_tool, allocator));
 
-    if (builtin.os.tag == .emscripten) {
+    if (isWeb()) {
         emscripten.emscripten_set_main_loop(updateFrame, 0, 1);
     } else {
         while (!raylib.windowShouldClose()) {
@@ -56,4 +56,12 @@ fn updateFrame() callconv(.C) void {
 
     raylib.clearBackground(raylib.Color.init(32, 32, 32, 255));
     qdraw.render();
+}
+
+pub inline fn glslVersion() []const u8 {
+    return if (isWeb()) "100" else "330";
+}
+
+pub inline fn isWeb() bool {
+    return builtin.os.tag == .emscripten or builtin.os.tag == .wasi;
 }
